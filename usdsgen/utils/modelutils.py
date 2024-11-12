@@ -81,17 +81,7 @@ def reduce_tensor(tensor):
 def load_pretrained(model_cfg, model, logger):
     logger.info(f">>>>>>>>>> Fine-tuned from {model_cfg.pretrained} ..........")
     checkpoint = torch.load(model_cfg.pretrained, map_location="cpu")
-    checkpoint_model = checkpoint["model"]
-
-    if any([True if "encoder." in k else False for k in checkpoint_model.keys()]):
-        checkpoint_model = {
-            k.replace("encoder.", ""): v
-            for k, v in checkpoint_model.items()
-            if k.startswith("encoder.")
-        }
-        logger.info("Detect pre-trained model, remove [encoder.] prefix.")
-    else:
-        logger.info("Detect non-pre-trained model, pass without doing anything.")
+    checkpoint_model = checkpoint
 
     if "swin" in model_cfg.type.lower():
         logger.info(">>>>>>>>>> Remapping pre-trained keys for SWIN ..........")

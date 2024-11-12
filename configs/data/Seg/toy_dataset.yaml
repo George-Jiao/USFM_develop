@@ -1,9 +1,9 @@
-name: "FASS"
+name: "toy_dataset"
 type: "SegBase"
 num_classes: 5
 img_size: 512
 path:
-  root: "${DATA.DS_path}/Seg/FASS"
+  root: "./datasets/Seg/toy_dataset"
   split:
     train: "training_set"
     val: "val_set"
