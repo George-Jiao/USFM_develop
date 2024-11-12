@@ -261,6 +261,19 @@ class SegTrainer(BaseTrainer):
 
         return dice, iou, loss, val_result
 
+    @torch.no_grad()
+    def test(self):
+        if self.config.model.resume:
+            self.load_resume()
+        else:
+            raise ValueError("No checkpoint loaded for testing")
+        self.load_resume()
+        self.logger.info("Start testing")
+        dice, iou, loss, test_result = self.validate(self.dataloader_test)
+        self.logger.info(f"Test Dice: {dice:.3f}, Test IoU: {iou:.3f}")
+        mask_path_dir = save_seg_pre_gt(self.config.output, test_result, "_test", dice)
+        self.logger.info(f"Test result saved in {mask_path_dir}")
+
     def step(self, batch):
         samples, labels = batch["image"], batch["mask"]
         labels = labels.long()
