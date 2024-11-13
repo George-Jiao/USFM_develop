@@ -85,17 +85,17 @@ def load_pretrained(model_cfg, model, logger):
 
     if "swin" in model_cfg.type.lower():
         logger.info(">>>>>>>>>> Remapping pre-trained keys for SWIN ..........")
-        checkpoint = remap_pretrained_keys_swin(model, checkpoint_model, logger)
+        checkpoint_model = remap_pretrained_keys_swin(model, checkpoint_model, logger)
     elif "vit" in model_cfg.type.lower():
         logger.info(">>>>>>>>>> Remapping pre-trained keys for VIT ..........")
-        checkpoint = remap_pretrained_keys_vit(model, checkpoint_model, logger)
+        checkpoint_model = remap_pretrained_keys_vit(model, checkpoint_model, logger)
     else:
         raise NotImplementedError
 
     msg = model.load_state_dict(checkpoint_model, strict=False)
     logger.info(msg)
 
-    del checkpoint
+    del checkpoint_model
     torch.cuda.empty_cache()
     logger.info(f">>>>>>>>>> loaded successfully '{model_cfg.pretrained}'")
 

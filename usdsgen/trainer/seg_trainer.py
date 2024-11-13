@@ -128,17 +128,6 @@ class SegTrainer(BaseTrainer):
                 self.logger.info(
                     f"Dice of the network on all test images: {val_dice:.3f}"
                 )
-
-                if val_dice > self.max_dice:
-                    self.max_dice = val_dice.item()
-                    isbest = True
-                    self.logger.info(
-                        f"Max Dice: {self.max_dice:.3f}, Max IoU: {val_iou:.3f}"
-                    )
-
-                else:
-                    pass
-
                 self.fabric.barrier()
                 self.fabric.all_reduce([train_loss, val_loss])
                 self.fabric.all_reduce([train_dice, val_dice])
@@ -146,9 +135,16 @@ class SegTrainer(BaseTrainer):
                 val_result["segmetrics"] = self.fabric.all_reduce(
                     val_result["segmetrics"]
                 )
-                self.save_checkpoint(epoch, self.max_dice, val_result, isbest)
-                isbest = False
 
+                if val_dice > self.max_dice:
+                    self.max_dice = val_dice.item()
+                    isbest = True
+                    self.logger.info(
+                        f"Max Dice: {self.max_dice:.3f}, Max IoU: {val_iou:.3f}"
+                    )
+                self.save_checkpoint(epoch, self.max_dice, val_result, isbest)
+                self.fabric.barrier()
+                isbest = False
             # make log tensorboard
             self.fabric.log_dict(tensorboard_log, epoch)
             self.fabric.log("lr", self.optimizer.param_groups[-1]["lr"], epoch)
@@ -313,27 +309,38 @@ class SegTrainer(BaseTrainer):
 
     def save_checkpoint(self, epoch, max_dice, val_result, isbest=False):
         # save result
-        self.fabric.barrier()
         with self.fabric.rank_zero_first():
-            mask_path_dir = save_seg_pre_gt(
-                self.config.output, val_result, epoch, max_dice
-            )
-            checkpoint_name = save_segmetrics(
-                self.config.output, val_result, epoch, max_dice, mask_path_dir, isbest
-            )
-            self.top_k_results_manager.update(mask_path_dir, max_dice)
+            checkpoint_name = None
+            if isbest:
+                self.logger.info(
+                    f"Saving the best model with dice {max_dice:.3f} at epoch {epoch}"
+                )
+                mask_path_dir = save_seg_pre_gt(
+                    self.config.output, val_result, epoch, max_dice
+                )
+                checkpoint_name = save_segmetrics(
+                    self.config.output,
+                    val_result,
+                    epoch,
+                    max_dice,
+                    mask_path_dir,
+                    isbest,
+                )
+                self.top_k_results_manager.update(mask_path_dir, max_dice)
 
-            if (checkpoint_name) is None and (epoch == self.config.train.epochs - 1):
+            if checkpoint_name is None and (epoch == self.config.train.epochs - 1):
                 checkpoint_name = f"last{epoch}.pth"
 
-            # best or save_freq or last epoch
-            if checkpoint_name is not None:
-                self.state.update({"epoch": epoch, "max_dice": max_dice})
-                self.fabric.save(
-                    os.path.join(self.config.output, checkpoint_name), self.state
-                )
-                self.fabric.barrier()
-                self.logger.info(f"Succeed to save checkpoint to {checkpoint_name}")
+        self.fabric.barrier()
+        self.fabric.broadcast(checkpoint_name, 0)
+        # best or save_freq or last epoch
+        if checkpoint_name is not None:
+            self.state.update({"epoch": epoch, "max_dice": max_dice})
+            self.fabric.save(
+                os.path.join(self.config.output, checkpoint_name), self.state
+            )
+            self.logger.info(f"Succeed to save checkpoint to {checkpoint_name}")
+            self.fabric.barrier()
 
 
 if __name__ == "__main__":
