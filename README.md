@@ -155,8 +155,7 @@ export model=Seg/SegVit # SegVit or Upernet for segmentation, vit for classifica
 
 
 python main.py experiment=task/$task data=Seg/$dataset data="{batch_size:$batch_size,num_workers:$num_workers}" \
-    model=$model \
-    model.model_cfg.backbone.pretrained=$pretrained_path \
+    model=$model model.model_cfg.backbone.pretrained=$pretrained_path \
     train="{epochs:$epochs, accumulation_steps:1}" L="{devices:$devices}" tag=USFM
 ```
 
