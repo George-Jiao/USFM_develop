@@ -188,9 +188,6 @@ def get_seg_fromarray(GT_array, Pre_array):
     sensitivity_scores = torch.zeros(B).to(device)
     specificity_scores = torch.zeros(B).to(device)
     for i in range(B):
-        if torch.max(GT_array[i]) == 0:
-            continue
-
         pred = Pre_array[i : i + 1, :, :]
         gt = GT_array[i : i + 1, :, :]
 

@@ -126,7 +126,9 @@ datasets/
 
 ### 2. An example toy dataset for segmentation task
 
-Download the Seg_toy_dataset from Google Drive [Seg_toy_dataset.tar.gz](https://drive.google.com/file/d/1OgchMAtV9qL3hu_X4faHmCvMXg3qURLP/view?usp=sharing) and save it in folder \[./datasets\].
+Download the Seg_toy_dataset from Google Drive [Seg_toy_dataset.tar.gz](https://drive.google.com/file/d/1E3e7mTBdIxj4UOfeUrEFM6GgryXylodG/view?usp=sharing) and save it in folder \[./datasets\].
+
+\*\* The toy dataset is just for running purposes only, containing 199 images for training, 50 images for validation, and 50 images for testing.
 
 ```bash
 mkdir -p ./datasets/Seg/
