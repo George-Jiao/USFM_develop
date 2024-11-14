@@ -41,9 +41,8 @@ The latest weight of USFM has been released ([USFM_latest.pth](https://drive.goo
 
 ### Paper
 
-[USFM: A universal ultrasound foundation model generalized to tasks and organs towards label efficient image analysis](https://www.sciencedirect.com/science/article/pii/S1361841524001270)
+[J. Jiao et al., “USFM: A universal ultrasound foundation model generalized to tasks and organs towards label efficient image analysis,” Medical Image Analysis, vol. 96, p. 103202, Aug. 2024, doi: 10.1016/j.media.2024.103202.](https://www.sciencedirect.com/science/article/pii/S1361841524001270)
 
-Jing Jiao, ..., Yuanyuan Wang, Yi Guo
 
 ## 📌 Configuring the runtime environment
 
